@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+   
+{% block content %}
+<h1>Extracted Text</h1>
+<p>{{ passport.text }}</p>
+<img src="{{ passport.image.url }}" alt="Uploaded Image" width="50%">
+{% endblock content %}
