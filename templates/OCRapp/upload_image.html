@@ -1,12 +1,17 @@
 {% extends "base.html" %}
    
 {% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'OCRapp/upload_style.css' %}">
 <div class="containter">
     <h2>Step 2: Insertion of Documents of Seafarer</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload</button>
+        <span>PASSPORT FRONT PAGE :</span>
+        {{ form.image }}
+        <div class="button-group">
+            <button type="submit" class="upload-button">Upload</button>
+        </div>
     </form>
 </div>
 {% endblock content %}
