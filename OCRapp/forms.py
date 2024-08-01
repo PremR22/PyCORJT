@@ -1,7 +1,7 @@
 from django import forms
-from .models import OCRImage
+from .models import PassportImage
 
 class OCRImageForm(forms.ModelForm):
     class Meta:
-        model = OCRImage
-        fields = ['image']
+        model = PassportImage
+        fields = ['front_image', 'back_image']

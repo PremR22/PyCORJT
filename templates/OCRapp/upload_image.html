@@ -8,7 +8,9 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <span>PASSPORT FRONT PAGE :</span>
-        {{ form.image }}
+        {{ form.front_image }}
+        <span>PASSPORT BACK PAGE :</span>
+        {{ form.back_image }}
         <div class="button-group">
             <button type="submit" class="upload-button">Upload</button>
         </div>

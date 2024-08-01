@@ -7,16 +7,13 @@ import cv2
 import re
 
 from .forms import OCRImageForm
-from .models import OCRImage
+from .models import PassportImage
 
 pytesseract.pytesseract.tesseract_cmd = (
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )
 
 # Create your views here.
-def Hello(request):
-    return HttpResponse('Hello World')
-
 def homepage(request):
     return render(request, 'homepage.html')
 
@@ -25,54 +22,71 @@ def upload_image(request):
         form = OCRImageForm(request.POST, request.FILES)
         if form.is_valid():
             passport = form.save()
-            image_path = passport.image.path
-            image = cv2.imread(image_path)
-            
-            kernel = np.ones((1, 1), np.uint8)
-            image = cv2.dilate(image, kernel, iterations=1)
-            kernel = np.ones((1, 1), np.uint8)
-            image = cv2.erode(image, kernel, iterations=1)
-            image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
-            image = cv2.medianBlur(image, 3)
 
-            processed_img = Image.fromarray(image)
-            processed_img.save("media/temp/processed_img.jpg")
+            front_image_path = passport.front_image.path
+            back_image_path = passport.back_image.path
 
-            raw_text = pytesseract.image_to_string(processed_img)       
+            processed_front_image = process_image(front_image_path)
+            processed_back_image = process_image(back_image_path)
 
-            passport.text = raw_text
+            passport.back_text = extract_text(processed_back_image)
+            passport.front_text = extract_text(processed_front_image)
+
             passport.save()
-
-            clean_data(raw_text)
+            front_clean_data(passport.front_text)
+            back_clean_data(passport.back_text)
             return redirect('view_image', passport.id)
     else:
         form = OCRImageForm()
     return render(request, 'OCRapp/upload_image.html', {'form': form})
 
 def view_image(request, pk):
-    passport = OCRImage.objects.get(pk=pk)
+    passport = PassportImage.objects.get(pk=pk)
     return render(request, 'OCRapp/view_image.html', {'passport' : passport})
 
-def clean_data(raw_text):
+def process_image(image_path):
+    image = cv2.imread(image_path)         
+    kernel = np.ones((1, 1), np.uint8)
+    image = cv2.dilate(image, kernel, iterations=1)
+    kernel = np.ones((1, 1), np.uint8)
+    image = cv2.erode(image, kernel, iterations=1)
+    image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
+    image = cv2.medianBlur(image, 3)
+    processed_img = Image.fromarray(image)
+    return processed_img
+
+def extract_text(processed_image):
+    raw_text = pytesseract.image_to_string(processed_image)
+    return raw_text
+
+def front_clean_data(front_raw_text):
     cleaned_text = []
-    date_pattern = r'\d{2}-\d{2}-\d{4}'
-    passport_pattern = r'\b[A-Z][0-9]{8}\b'
-            
-    print(raw_text)
-
-    passport_no = re.search(passport_pattern, raw_text)
-    print(passport_no)
-
-    date = re.search(date_pattern, raw_text)
-    if date:
-        dates = date.group()
-        print(dates)
+    passport_pattern = re.compile(r"\b(?=(?:[A-Z0-9\s*]{7,9}\b))(?=.*[A-Z])(?=.*\d)(?:[A-Z0-9]\s*){7,9}\b")
+    pass_matches = passport_pattern.findall(front_raw_text)
+    if pass_matches:
+        passport_number = pass_matches[0]
+        print("Extracted Passport Number:")
+        print(passport_number)
     else:
-        print("No dates")
-        for text in raw_text.split():
-            if not text.islower() or text.isnumeric():
-                cleaned_text.append(text)
+        print("Passport number not found.")
+    
+def back_clean_data(back_raw_text):
+    lowercase_pattern = re.compile(r"\b[a-z]+\b")
+    cleaned_text = lowercase_pattern.sub('', back_raw_text)
+    cleaned_text = cleaned_text.replace('\n', ' ').replace('\r', ' ')
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+    cleaned_text = re.sub(r'\s*,\s*', ',', cleaned_text)
 
+    print(cleaned_text)
+
+    address_pattern = re.compile(r"([A-Z\s,]*?PIN\s*:\s*\d{6}[A-Z\s,]*)", re.DOTALL)
+    matches = address_pattern.findall(cleaned_text)
+    if matches:
+        address = matches[0].strip()  # Get the first match and strip any surrounding whitespace
+        print("Extracted Address:")
+        print(address)
+    else:
+        print("Address not found.")
 
 def bounding_box(image_path):
     results = []
