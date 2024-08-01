@@ -1,10 +1,12 @@
 {% extends "base.html" %}
    
 {% block content %}
-    <h1>Upload Image for OCR</h1>
+<div class="containter">
+    <h2>Step 2: Insertion of Documents of Seafarer</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Upload</button>
     </form>
+</div>
 {% endblock content %}
