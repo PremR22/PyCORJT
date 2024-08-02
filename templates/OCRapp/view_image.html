@@ -1,6 +1,8 @@
 {% extends "base.html" %}
    
 {% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'OCRapp/view_image_style.css' %}">
 <h1>Extracted Raw Text</h1>
 
 <h3>Front Image</h3>
@@ -10,5 +12,7 @@
 <h3>Back Image</h3>
 <p>{{ passport.back_text }}</p>
 <img src="{{ passport.back_image.url }}" alt="Back Image" width="25%">
+
+<a href="{% url 'view_clean_data' %}"> View Clean Data</a>
 
 {% endblock content %}

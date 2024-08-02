@@ -1,7 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect
 from PIL import Image
 import numpy as np
-import datefinder
 import pytesseract
 import cv2
 import re
@@ -44,6 +43,9 @@ def view_image(request, pk):
     passport = PassportImage.objects.get(pk=pk)
     return render(request, 'OCRapp/view_image.html', {'passport' : passport})
 
+def view_clean_data(request):
+    return render(request, 'OCRapp/view_clean_data.html')
+
 def process_image(image_path):
     image = cv2.imread(image_path)         
     kernel = np.ones((1, 1), np.uint8)
@@ -59,25 +61,49 @@ def extract_text(processed_image):
     raw_text = pytesseract.image_to_string(processed_image)
     return raw_text
 
+def clean_data(raw_text):
+    lowercase_pattern = re.compile(r"\b[a-z]+\b")
+    cleaned_text = lowercase_pattern.sub(' ', raw_text)
+
+    cleaned_text = cleaned_text.replace('\n', ' ').replace('\r', ' ')
+
+    cleaned_text = re.sub(r'\s*,\s*', ',', cleaned_text)
+    cleaned_text = re.sub(r'[^a-zA-Z0-9 ,:/]', ' ', cleaned_text)
+    cleaned_text = re.sub(r'\s/\s', '', cleaned_text)
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
+
+    print("cleaned text")
+    print(cleaned_text)
+
+    return cleaned_text
+
+
 def front_clean_data(front_raw_text):
-    cleaned_text = []
-    passport_pattern = re.compile(r"\b(?=(?:[A-Z0-9\s*]{7,9}\b))(?=.*[A-Z])(?=.*\d)(?:[A-Z0-9]\s*){7,9}\b")
-    pass_matches = passport_pattern.findall(front_raw_text)
+    cleaned_text = clean_data(front_raw_text)
+
+    date_pattern = r'\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2}|\d{1,2}(?:st|nd|rd|th)?\s+\w+,\s+\d{4})\b'
+    date_matches = re.findall(date_pattern, cleaned_text)
+    if date_matches:
+        dob = date_matches[0]
+        print("Extracted Date of Birth:")
+        print(dob)
+    else:
+        print("DOB not found.")
+
+    passport_pattern = r'[A-Z](?:\s*\d\s*){7}'
+    pass_matches = re.findall(passport_pattern, cleaned_text)
     if pass_matches:
-        passport_number = pass_matches[0]
+        passport_number = re.sub(r'\s+', '', pass_matches[0])
         print("Extracted Passport Number:")
         print(passport_number)
     else:
         print("Passport number not found.")
+
+    extract_name(cleaned_text)
+
     
 def back_clean_data(back_raw_text):
-    lowercase_pattern = re.compile(r"\b[a-z]+\b")
-    cleaned_text = lowercase_pattern.sub('', back_raw_text)
-    cleaned_text = cleaned_text.replace('\n', ' ').replace('\r', ' ')
-    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
-    cleaned_text = re.sub(r'\s*,\s*', ',', cleaned_text)
-
-    print(cleaned_text)
+    cleaned_text = clean_data(back_raw_text)
 
     address_pattern = re.compile(r"([A-Z\s,]*?PIN\s*:\s*\d{6}[A-Z\s,]*)", re.DOTALL)
     matches = address_pattern.findall(cleaned_text)
@@ -87,6 +113,27 @@ def back_clean_data(back_raw_text):
         print(address)
     else:
         print("Address not found.")
+    
+    extract_name(cleaned_text)
+
+
+def extract_name(cleaned_text):
+    name_pattern = r'\b[A-Z][A-Z\'-]*\b'
+    names = re.findall(name_pattern, cleaned_text)
+    filtered_names = [
+        re.sub(r'[^\w\'-]', '', name)
+        for name in names
+    ]
+    filtered_names = [
+        name for name in filtered_names
+        if len(name) > 3 and ' ' not in name
+    ]
+    if filtered_names:
+        print("Extracted Names:")
+        print(filtered_names)
+    else:
+        print("Passport number not found.")
+
 
 def bounding_box(image_path):
     results = []
