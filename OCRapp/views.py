@@ -32,8 +32,6 @@ def upload_image(request):
             passport.front_text = extract_text(processed_front_image)
 
             passport.save()
-            front_clean_data(passport.front_text)
-            back_clean_data(passport.back_text)
             return redirect('view_image', passport.id)
     else:
         form = OCRImageForm()
@@ -43,7 +41,10 @@ def view_image(request, pk):
     passport = PassportImage.objects.get(pk=pk)
     return render(request, 'OCRapp/view_image.html', {'passport' : passport})
 
-def view_clean_data(request):
+def view_clean_data(request, pk):
+    passport = PassportImage.objects.get(pk=pk)
+    front_clean_data(passport.front_text)
+    back_clean_data(passport.back_text)
     return render(request, 'OCRapp/view_clean_data.html')
 
 def process_image(image_path):
@@ -72,50 +73,91 @@ def clean_data(raw_text):
     cleaned_text = re.sub(r'\s/\s', '', cleaned_text)
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
 
-    print("cleaned text")
-    print(cleaned_text)
-
     return cleaned_text
 
-
 def front_clean_data(front_raw_text):
-    cleaned_text = clean_data(front_raw_text)
+    mrz_text = extract_mrz(front_raw_text)
+    print("Front raw: ", front_raw_text)
+    print("mrz_text", mrz_text)
+    extract_data(mrz_text)
 
+def back_clean_data(back_raw_text):
+    cleaned_text = clean_data(back_raw_text)
+    address = extract_address(cleaned_text)
+    names = extract_name(cleaned_text)
+
+    print("Names: ", names)
+    print("Address: ", address)
+
+def extract_mrz(front_raw_text):
+    lines = front_raw_text.split('\n')
+    mrz_lines = []
+    for line in lines:
+        line = line.strip()
+        line = line.replace(" ", "")
+        if len(line) >= 30 and all(c.isalnum() or c in "<>" for c in line):
+            mrz_lines.append(line)
+    #mrz_lines = [line for line in lines if re.match(r'^[A-Z0-9<>]{44,90}$', line)]
+    mrz_text = '\n'.join(mrz_lines)
+    return mrz_text
+
+def extract_data(mrz_text):
+    mrz_lines = mrz_text.split('\n')
+    if len(mrz_lines) < 2:
+        raise ValueError("Not enough MRZ lines to parse")
+    
+    line1 = mrz_lines[0]
+    line2 = mrz_lines[1]
+
+    passport_type = line1[0:1]
+    issuing_country = line1[2:5]
+    name_parts = line1[5:].split('<')
+    surname = name_parts[0].replace('<', ' ').strip()
+    firstname = ' '.join(name_parts[1:]).replace('<', ' ').strip()
+
+    passport_number = line2[0:8]
+    nationality = line2[10:13]
+    dob = line2[13:19]
+    gender = line2[20]
+    expiry_date = line2[21:27]
+
+    print("Passport Type: ", passport_type)
+    print("Issuing Country: ", issuing_country)
+    print("Passport Number: ", passport_number)
+    print("Name: ", firstname)
+    print("Surname: ", surname)
+    print("DOB: ", dob)
+    print("Expiry Date: ", expiry_date)
+    print("Nationality: ", nationality)
+    print("Sex: ", gender)
+
+
+def extract_dob(cleaned_text):
     date_pattern = r'\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2}|\d{1,2}(?:st|nd|rd|th)?\s+\w+,\s+\d{4})\b'
     date_matches = re.findall(date_pattern, cleaned_text)
     if date_matches:
         dob = date_matches[0]
-        print("Extracted Date of Birth:")
-        print(dob)
+        return dob
     else:
-        print("DOB not found.")
-
+        return "not found"
+    
+def extract_passport_no(cleaned_text):
     passport_pattern = r'[A-Z](?:\s*\d\s*){7}'
     pass_matches = re.findall(passport_pattern, cleaned_text)
     if pass_matches:
         passport_number = re.sub(r'\s+', '', pass_matches[0])
-        print("Extracted Passport Number:")
-        print(passport_number)
+        return passport_number
     else:
-        print("Passport number not found.")
+        return "not found"
 
-    extract_name(cleaned_text)
-
-    
-def back_clean_data(back_raw_text):
-    cleaned_text = clean_data(back_raw_text)
-
+def extract_address(cleaned_text):
     address_pattern = re.compile(r"([A-Z\s,]*?PIN\s*:\s*\d{6}[A-Z\s,]*)", re.DOTALL)
     matches = address_pattern.findall(cleaned_text)
     if matches:
         address = matches[0].strip()  # Get the first match and strip any surrounding whitespace
-        print("Extracted Address:")
-        print(address)
+        return address
     else:
-        print("Address not found.")
-    
-    extract_name(cleaned_text)
-
+        return "not found"
 
 def extract_name(cleaned_text):
     name_pattern = r'\b[A-Z][A-Z\'-]*\b'
@@ -129,10 +171,9 @@ def extract_name(cleaned_text):
         if len(name) > 3 and ' ' not in name
     ]
     if filtered_names:
-        print("Extracted Names:")
-        print(filtered_names)
+        return filtered_names
     else:
-        print("Passport number not found.")
+        return "not found"
 
 
 def bounding_box(image_path):

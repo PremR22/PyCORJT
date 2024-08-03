@@ -3,16 +3,26 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'OCRapp/view_image_style.css' %}">
-<h1>Extracted Raw Text</h1>
 
-<h3>Front Image</h3>
-<p>{{ passport.front_text }}</p>
-<img src="{{ passport.front_image.url }}" alt="Front Image" width="25%">
+<div class="heading">
+    <h1>Extracted Raw Text</h1>
+</div>
+<div class="container">
+    <div class="box">
+    <h3>Front Image</h3>
+    <p>{{ passport.front_text }}</p>
+    <img src="{{ passport.front_image.url }}" alt="Front Image" width="100%">
+    </div>
 
-<h3>Back Image</h3>
-<p>{{ passport.back_text }}</p>
-<img src="{{ passport.back_image.url }}" alt="Back Image" width="25%">
+    <div class="box">
+    <h3>Back Image</h3>
+    <p>{{ passport.back_text }}</p>
+    <img src="{{ passport.back_image.url }}" alt="Back Image" width="100%">
+    </div>
+</div>
 
-<a href="{% url 'view_clean_data' %}"> View Clean Data</a>
+<div class="link">
+<a href="{% url 'view_clean_data' passport.id%}"> View Clean Data</a>
+</div>
 
 {% endblock content %}
