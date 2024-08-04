@@ -2,6 +2,20 @@
    
 {% block content %}
 <h1>Cleaned Text</h1>
-
+<div class="data">
+    <p><strong>Passport Type:</strong> {{ passport_detail.passport_type }}</p>
+    <p><strong>Issuing Country:</strong> {{ passport_detail.issuing_country }}</p>
+    <p><strong>Passport Number:</strong> {{ passport_detail.passport_number }}</p>
+    <p><strong>Name:</strong> {{ passport_detail.name }}</p>
+    <p><strong>Surname:</strong> {{ passport_detail.surname }}</p>
+    <p><strong>Date of Birth:</strong> {{ passport_detail.dob }}</p>
+    <p><strong>Expiry Date:</strong> {{ passport_detail.expiry_date }}</p>
+    <p><strong>Nationality:</strong> {{ passport_detail.nationality }}</p>
+    <p><strong>Gender:</strong> {{ passport_detail.sex }}</p>
+    <p><strong>Father's Name:</strong> {{ passport_detail.fathers_name }}</p>
+    <p><strong>Mother's Name:</strong> {{ passport_detail.mothers_name }}</p>
+    <p><strong>Spouse's Name:</strong> {{ passport_detail.spouses_name }}</p>
+    <p><strong>Address:</strong> {{ passport_detail.address }}</p>
+</div>
 
 {% endblock content %}

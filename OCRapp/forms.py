@@ -1,5 +1,5 @@
 from django import forms
-from .models import PassportImage, PassportDetails
+from .models import PassportImage, PassportDetail
 
 class OCRImageForm(forms.ModelForm):
     class Meta:
@@ -8,5 +8,5 @@ class OCRImageForm(forms.ModelForm):
 
 class PassportDetailsForm(forms.ModelForm):
     class Meta:
-        model = PassportDetails
-        fields = ['first_name', 'last_name', 'passport_no', 'nationality', 'dob', 'address', 'father_name', 'mother_name']
+        model = PassportDetail
+        fields = ['passport_type', 'issuing_country', 'passport_number', 'name', 'surname', 'dob', 'expiry_date', 'nationality', 'sex', 'fathers_name', 'mothers_name', 'spouses_name', 'address']

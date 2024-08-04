@@ -7,7 +7,7 @@ import cv2
 import re
 
 from .forms import OCRImageForm
-from .models import PassportImage
+from .models import PassportImage, PassportDetail
 
 pytesseract.pytesseract.tesseract_cmd = (
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -44,9 +44,29 @@ def view_image(request, pk):
 
 def view_clean_data(request, pk):
     passport = PassportImage.objects.get(pk=pk)
-    front_clean_data(passport.front_text)
-    back_clean_data(passport.back_text)
-    return render(request, 'OCRapp/view_clean_data.html')
+
+    passport_type, issuing_country, passport_number, firstname, surname, dob, expiry_date, nationality, gender = front_clean_data(passport.front_text)
+    father_name, mother_name, spouse_name, address = back_clean_data(passport.back_text)
+
+    passport_detail, created = PassportDetail.objects.get_or_create(
+        passport_number=passport_number,
+        defaults={
+            'passport_type': passport_type,
+            'issuing_country': issuing_country,
+            'name': firstname,
+            'surname': surname,
+            'dob': dob,
+            'expiry_date': expiry_date,
+            'nationality': nationality,
+            'sex': gender,
+            'fathers_name': father_name,
+            'mothers_name': mother_name,
+            'spouses_name': spouse_name,
+            'address': address
+        }
+    )
+
+    return render(request, 'OCRapp/view_clean_data.html', {'passport_detail': passport_detail})
 
 def process_image(image_path):
     image = cv2.imread(image_path)         
@@ -78,14 +98,19 @@ def clean_data(raw_text):
 
 def front_clean_data(front_raw_text):
     mrz_text = extract_mrz(front_raw_text)
-    extract_data(mrz_text)  
+    return extract_data(mrz_text)  
 
 def back_clean_data(back_raw_text):
-    extract_names(back_raw_text)
+    father_name, mother_name, spouse_name = extract_names(back_raw_text)
     cleaned_text = clean_data(back_raw_text)
     address = extract_address(cleaned_text)
 
-    print("Address: ", address)
+    return (
+        father_name,
+        mother_name,
+        spouse_name,
+        address
+    )
 
 def extract_mrz(front_raw_text):
     lines = front_raw_text.split('\n')
@@ -105,7 +130,7 @@ def extract_data(mrz_text):
         raise ValueError("Not enough MRZ lines to parse")
     
     current_format = "%y%m%d"
-    desired_format = "%d-%m-%Y"
+    desired_format = "%Y-%m-%d"
 
     line1 = mrz_lines[0]
     line2 = mrz_lines[1]
@@ -126,17 +151,18 @@ def extract_data(mrz_text):
     expiry_date = line2[21:27]
     expiry_date = extract_date(expiry_date, current_format, desired_format)
 
-
-    print("Passport Type: ", passport_type)
-    print("Issuing Country: ", issuing_country)
-    print("Passport Number: ", passport_number)
-    print("Name: ", firstname)
-    print("Surname: ", surname)
-    print("DOB: ", dob)
-    print("Expiry Date: ", expiry_date)
-    print("Nationality: ", nationality)
-    print("Sex: ", gender)
-
+    return (
+        passport_type,
+        issuing_country,
+        passport_number,
+        firstname,
+        surname,
+        dob,
+        expiry_date,
+        nationality,
+        gender
+    )
+    
 
 def extract_date(date, current_format, desired_format):
     try:
@@ -182,9 +208,12 @@ def extract_names(back_raw_text):
     father_name = filtered_names[0]
     mother_name = filtered_names[1]
     spouse_name = filtered_names[2]
-    print("Father's Name: ", father_name)
-    print("Mother's Name: ", mother_name)
-    print("Spouse's Name: ", spouse_name)
+
+    return (
+        father_name,
+        mother_name,
+        spouse_name
+    )
 
 
 def bounding_box(image_path):
