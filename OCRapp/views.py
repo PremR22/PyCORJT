@@ -1,4 +1,5 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, redirect
+from datetime import datetime
 from PIL import Image
 import numpy as np
 import pytesseract
@@ -77,16 +78,13 @@ def clean_data(raw_text):
 
 def front_clean_data(front_raw_text):
     mrz_text = extract_mrz(front_raw_text)
-    print("Front raw: ", front_raw_text)
-    print("mrz_text", mrz_text)
-    extract_data(mrz_text)
+    extract_data(mrz_text)  
 
 def back_clean_data(back_raw_text):
+    extract_names(back_raw_text)
     cleaned_text = clean_data(back_raw_text)
     address = extract_address(cleaned_text)
-    names = extract_name(cleaned_text)
 
-    print("Names: ", names)
     print("Address: ", address)
 
 def extract_mrz(front_raw_text):
@@ -106,6 +104,9 @@ def extract_data(mrz_text):
     if len(mrz_lines) < 2:
         raise ValueError("Not enough MRZ lines to parse")
     
+    current_format = "%y%m%d"
+    desired_format = "%d-%m-%Y"
+
     line1 = mrz_lines[0]
     line2 = mrz_lines[1]
 
@@ -113,13 +114,18 @@ def extract_data(mrz_text):
     issuing_country = line1[2:5]
     name_parts = line1[5:].split('<')
     surname = name_parts[0].replace('<', ' ').strip()
+    surname = re.sub(r'[a-z]', '', surname)
     firstname = ' '.join(name_parts[1:]).replace('<', ' ').strip()
+    firstname = re.sub(r'[a-z]', '', firstname)
 
     passport_number = line2[0:8]
     nationality = line2[10:13]
     dob = line2[13:19]
-    gender = line2[20]
+    dob = extract_date(dob, current_format, desired_format)
+    gender = line2[20] 
     expiry_date = line2[21:27]
+    expiry_date = extract_date(expiry_date, current_format, desired_format)
+
 
     print("Passport Type: ", passport_type)
     print("Issuing Country: ", issuing_country)
@@ -132,15 +138,13 @@ def extract_data(mrz_text):
     print("Sex: ", gender)
 
 
-def extract_dob(cleaned_text):
-    date_pattern = r'\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2}|\d{1,2}(?:st|nd|rd|th)?\s+\w+,\s+\d{4})\b'
-    date_matches = re.findall(date_pattern, cleaned_text)
-    if date_matches:
-        dob = date_matches[0]
-        return dob
-    else:
-        return "not found"
-    
+def extract_date(date, current_format, desired_format):
+    try:
+        date_obj = datetime.strptime(date, current_format)
+        return date_obj.strftime(desired_format)
+    except Exception:
+        return None
+
 def extract_passport_no(cleaned_text):
     passport_pattern = r'[A-Z](?:\s*\d\s*){7}'
     pass_matches = re.findall(passport_pattern, cleaned_text)
@@ -158,22 +162,29 @@ def extract_address(cleaned_text):
         return address
     else:
         return "not found"
-
-def extract_name(cleaned_text):
-    name_pattern = r'\b[A-Z][A-Z\'-]*\b'
-    names = re.findall(name_pattern, cleaned_text)
+    
+def extract_names(back_raw_text):
+    names = []
+    lines = back_raw_text.split('\n')
+    for line in lines:
+        line = line.strip()
+        line = re.sub(r'\b\w*[a-z]\w*\b', '', line)
+        line = re.sub(r'\s+', ' ', line).strip()
+        if re.fullmatch(r"[A-Z\s,.]*", line):
+            line = line.replace('.', "")
+            line = line.rstrip()
+            names.append(line)
+    name_list =  [name for name in names if name]
     filtered_names = [
-        re.sub(r'[^\w\'-]', '', name)
-        for name in names
+        name for name in name_list
+        if len(name) > 3
     ]
-    filtered_names = [
-        name for name in filtered_names
-        if len(name) > 3 and ' ' not in name
-    ]
-    if filtered_names:
-        return filtered_names
-    else:
-        return "not found"
+    father_name = filtered_names[0]
+    mother_name = filtered_names[1]
+    spouse_name = filtered_names[2]
+    print("Father's Name: ", father_name)
+    print("Mother's Name: ", mother_name)
+    print("Spouse's Name: ", spouse_name)
 
 
 def bounding_box(image_path):
