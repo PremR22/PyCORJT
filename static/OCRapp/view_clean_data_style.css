@@ -1,0 +1,35 @@
+h1{
+    color: #EEEEEE;
+}
+
+.data{
+    color: #EEEEEE;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+.data p{
+    margin: 10px;
+}
+.button{
+    margin: 20px;
+    margin-bottom: 5px;
+    padding: 10px;
+}
+.button a{
+    background-color: #76ABAE;
+    color: #222831;
+    position: relative;
+    display: block;
+    font-size: 1.5vw;
+    color: #222831;
+    text-align: center;
+    text-decoration: none;
+    margin-bottom: 1vw;
+    padding: 1vw;
+    border-radius: 1vw;
+}
+.button a:hover {
+    background-color: #ddd;
+    color: black;
+}

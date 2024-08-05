@@ -1,26 +1,25 @@
 .container {
-    background-color: white;
+    background-color: #31363F;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    color: black;
-    border: 2px solid black;
+    color: #EEEEEE;
 }
-.container h2 {
+.container h1 {
     text-align: center;
     margin-bottom: 20px;
-    color: #00796b;
+    color: #EEEEEE;
 }
-.button-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+.input{
+    margin: 20px;
+    padding: 10px;
 }
-.button-group span {
-    flex: 1;
+.button{
+    margin: 20px;
+    margin-bottom: 5px;
+    padding: 10px;
 }
-.button-group button {
+.button .upload-button{
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -29,14 +28,12 @@
     transition: background-color 0.3s;
     margin: 0 5px;
 }
-.button-group input[type="file"] {
-    display: none;
-}
 .upload-button {
-    background-color: green;
-    color: white;
+    background-color: #76ABAE;
+    color: #222831;
     position: relative;
 }
 .upload-button:hover {
-    background-color: darkgreen;
+    color: #EEEEEE;
+    background-color: #222831;
 }

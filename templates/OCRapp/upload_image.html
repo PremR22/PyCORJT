@@ -4,15 +4,19 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'OCRapp/upload_style.css' %}">
 <div class="container">
-    <h2>Step 2: Insertion of Documents of Seafarer</h2>
+    <h1>Insert your Passport Images</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <span>PASSPORT FRONT PAGE :</span>
-        {{ form.front_image }}
-        <span>PASSPORT BACK PAGE :</span>
-        {{ form.back_image }}
-        <div class="button-group">
-            <button type="submit" class="upload-button">Upload</button>
+        <div class="input">
+            <span>Passort Front Image :</span>
+            {{ form.front_image }}
+        </div>
+        <div class="input">
+            <span>Passport Back Image :</span>
+            {{ form.back_image }}
+        </div>
+        <div class="button">
+            <button type="submit" class="upload-button">UPLOAD</button>
         </div>
     </form>
 </div>

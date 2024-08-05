@@ -1,7 +1,10 @@
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from datetime import datetime
 from PIL import Image
 import numpy as np
+import json
 import pytesseract
 import cv2
 import re
@@ -215,6 +218,26 @@ def extract_names(back_raw_text):
         spouse_name
     )
 
+def export_to_JSON(request, pk):
+    passport_detail = get_object_or_404(PassportDetail, pk=pk)
+    custom_data = {
+        'passportType': passport_detail.passport_type,
+        'issuingCountry': passport_detail.issuing_country,
+        'passportNumber': passport_detail.passport_number,
+        'firstName': passport_detail.name,
+        'surname': passport_detail.surname,
+        'dateOfBirth': passport_detail.dob.isoformat() if passport_detail.dob else None,
+        'expiryDate': passport_detail.expiry_date.isoformat() if passport_detail.expiry_date else None,
+        'nationality': passport_detail.nationality,
+        'gender': passport_detail.sex,
+        'fatherName': passport_detail.fathers_name,
+        'motherName': passport_detail.mothers_name,
+        'spouseName': passport_detail.spouses_name,
+        'address': passport_detail.address,
+    }
+
+    json_data = json.dumps(custom_data, indent=4)
+    return JsonResponse(json.loads(json_data), safe=False)
 
 def bounding_box(image_path):
     results = []

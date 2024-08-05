@@ -1,6 +1,8 @@
 {% extends "base.html" %}
    
 {% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'OCRapp/view_clean_data_style.css' %}">
 <h1>Cleaned Text</h1>
 <div class="data">
     <p><strong>Passport Type:</strong> {{ passport_detail.passport_type }}</p>
@@ -16,6 +18,9 @@
     <p><strong>Mother's Name:</strong> {{ passport_detail.mothers_name }}</p>
     <p><strong>Spouse's Name:</strong> {{ passport_detail.spouses_name }}</p>
     <p><strong>Address:</strong> {{ passport_detail.address }}</p>
+</div>
+<div class="button">
+    <a href="{% url 'export_to_JSON' passport_detail.id %}">Export Data</a>
 </div>
 
 {% endblock content %}

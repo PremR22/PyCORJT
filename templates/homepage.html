@@ -1,13 +1,15 @@
 {% extends "base.html" %}
    
 {% block content %}
-<nav class="navbar">
-    <ul>
-        <li>
-            <a href="{% url 'upload_image' %}">
-                Link Images
-            </a>
-        </li>
-    </ul>
-</nav>
+{% load static %}
+<link rel="stylesheet" href="{% static 'homepage_style.css' %}">
+
+<div class="heading">
+    <h1>Welcome to OCRport</h1>
+    <h3>Effortlessly Extract and View Passport Details</h3>
+    <p>
+
+<div class="button">
+    <a href="{% url 'upload_image' %}">Link Images</a>
+</div>
 {% endblock content %}
