@@ -1,14 +1,16 @@
 .container {
-    background-color: #31363F;
+    background-color: #C4C5BA;
     padding: 20px;
+    border: 2px solid;
+    border-color: #595f39;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    color: #EEEEEE;
+    color: #1B1B1B;
 }
 .container h1 {
     text-align: center;
     margin-bottom: 20px;
-    color: #EEEEEE;
+    color: #1B1B1B;
 }
 .input{
     margin: 20px;
@@ -25,15 +27,14 @@
     border-radius: 5px;
     cursor: pointer;
     font-weight: 600;
-    transition: background-color 0.3s;
     margin: 0 5px;
 }
 .upload-button {
-    background-color: #76ABAE;
-    color: #222831;
+    background-color: #595f39;
+    color: #E4E4DE;
     position: relative;
 }
 .upload-button:hover {
-    color: #EEEEEE;
-    background-color: #222831;
+    background-color: #353822;
+    color: #E4E4DE;
 }

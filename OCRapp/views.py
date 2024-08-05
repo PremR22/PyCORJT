@@ -181,16 +181,16 @@ def extract_passport_no(cleaned_text):
         passport_number = re.sub(r'\s+', '', pass_matches[0])
         return passport_number
     else:
-        return "not found"
+        return None
 
 def extract_address(cleaned_text):
     address_pattern = re.compile(r"([A-Z\s,]*?PIN\s*:\s*\d{6}[A-Z\s,]*)", re.DOTALL)
     matches = address_pattern.findall(cleaned_text)
     if matches:
-        address = matches[0].strip()  # Get the first match and strip any surrounding whitespace
+        address = matches[0].strip()
         return address
     else:
-        return "not found"
+        return None
     
 def extract_names(back_raw_text):
     names = []

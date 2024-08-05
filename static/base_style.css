@@ -6,11 +6,11 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #222831;
+    background-color: #E4E4DE;
     position: relative;
 }
 nav{
-    background-color: #31363F;
+    background-color: #1B1B1B;
     position: fixed;
     top: 0;
     left: 0;
@@ -26,7 +26,7 @@ nav *{
 }
 nav a{
     margin: 20px;
-    color: #EEEEEE;
+    color: #E4E4DE;
     text-decoration: none;
     font-weight: 600;
     font-family: Helvetica, sans-serif;
