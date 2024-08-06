@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 1. Clone the repository
 
 ```
-git clone https://github.com/PremR22/OCR-Project.git
+git clone https://github.com/PremR22/PyCORJT.git
 ```
 
 2. Navigate to the Project Directory
