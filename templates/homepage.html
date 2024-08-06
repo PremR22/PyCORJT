@@ -5,14 +5,13 @@
 <link rel="stylesheet" href="{% static 'homepage_style.css' %}">
 
 <div class="heading">
-    <h1>Welcome to OCRport</h1>
+    <h1>Welcome to PyCORJT</h1>
     <h3>Extract and View Passport Details</h3>
     <p>Welcome to my Passport Data extractor. I made this project to learn more about Django and it's working.</p>
     <hr>
     <h3>How this works</h3>
     <p>Upload Images -> Extract Data -> Export JSON</p>
-
 <div class="button">
-    <a href="{% url 'upload_image' %}">Get Started!</a>
+    <a href="{% url 'OCRapp:upload_image' %}">Get Started!</a>
 </div>
 {% endblock content %}

@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'OCRapp'
+
 urlpatterns = [
     path('', views.homepage, name='home'),
     path('upload/', views.upload_image, name='upload_image'),

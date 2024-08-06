@@ -36,7 +36,7 @@ def upload_image(request):
             passport.front_text = extract_text(processed_front_image)
 
             passport.save()
-            return redirect('view_image', passport.id)
+            return redirect('OCRapp:view_image', passport.id)
     else:
         form = OCRImageForm()
     return render(request, 'OCRapp/upload_image.html', {'form': form})
@@ -129,8 +129,6 @@ def extract_mrz(front_raw_text):
 
 def extract_data(mrz_text):
     mrz_lines = mrz_text.split('\n')
-    if len(mrz_lines) < 2:
-        raise ValueError("Not enough MRZ lines to parse")
     
     current_format = "%y%m%d"
     desired_format = "%Y-%m-%d"

@@ -20,7 +20,7 @@
     <p><strong>Address:</strong> {{ passport_detail.address }}</p>
 </div>
 <div class="button">
-    <a href="{% url 'export_to_JSON' passport_detail.id %}">Export Data</a>
+    <a href="{% url 'OCRapp:export_to_JSON' passport_detail.id %}">Export Data</a>
 </div>
 
 {% endblock content %}
