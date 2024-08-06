@@ -17,7 +17,7 @@ git clone https://github.com/PremR22/PyCORJT.git
 2. Navigate to the Project Directory
 
 ```
-cd OCR-Project
+cd PyCORJT
 ```
 
 3. Create & Activate a Virtual Environment
