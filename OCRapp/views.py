@@ -172,14 +172,6 @@ def extract_date(date, current_format, desired_format):
     except Exception:
         return None
 
-def extract_passport_no(cleaned_text):
-    passport_pattern = r'[A-Z](?:\s*\d\s*){7}'
-    pass_matches = re.findall(passport_pattern, cleaned_text)
-    if pass_matches:
-        passport_number = re.sub(r'\s+', '', pass_matches[0])
-        return passport_number
-    else:
-        return None
 
 def extract_address(cleaned_text):
     address_pattern = re.compile(r"([A-Z\s,]*?PIN\s*:\s*\d{6}[A-Z\s,]*)", re.DOTALL)
