@@ -47,6 +47,14 @@ python manage.py runserver
 
 Then open http://localhost:8000/ocr/ in your browser to explore API.
 
+## Running the tests
+
+I also went ahead and wrote tests for my Models, Forms and some of my views. To run tests, simply run this command.
+
+```
+python manage.py test
+```
+
 ## Built With
 
 - **[Django](https://www.djangoproject.com/)**: The web framework used for developing the web application.
